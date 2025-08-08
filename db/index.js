@@ -1,7 +1,11 @@
 import * as user from './user'
 import * as auth from './auth'
+import * as drink from './drink'
 
-export default {
+const obj = {
   user,
-  auth
+  auth,
+  drink
 }
+
+export default obj

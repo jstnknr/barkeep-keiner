@@ -1,0 +1,1 @@
+export const SEARCH_DRINKS = 'SEARCH_DRINKS'

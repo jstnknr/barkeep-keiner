@@ -1,5 +1,7 @@
 import { Schema, model, models } from 'mongoose'
+import drinkSchema from './drink'
 import bcrypt from 'bcrypt'
+
 
 const UserSchema = new Schema({
   username: {

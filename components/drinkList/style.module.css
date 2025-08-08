@@ -1,0 +1,12 @@
+.list {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 40px;
+    margin-top: 20px;
+  }
+
+.list a {
+  background-color: rgb(208, 208, 208);
+}
