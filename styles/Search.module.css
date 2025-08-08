@@ -1,49 +1,50 @@
 .title {
-    margin: 0;
-    padding-top: 40px;
-    font-size: 40px;
-    font-family: Arial, Helvetica, sans-serif;
-    text-align: center;
-    color: rgb(0, 0, 0);
-  }
-  
-  .main {
-    background-color: rgb(185, 185, 185);
-    padding-bottom: 100px;
-  }
+  margin: 0;
+  padding-top: 40px;
+  font-size: 40px;
+  font-family: Arial, Helvetica, sans-serif;
+  text-align: center;
+  color: rgb(0, 0, 0);
+}
 
-  .form {
-    padding: 60px;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
-  .form button {
-    margin-left: 20px;
-  }
-  
-  .form div {
-    padding-top: 30px;
-    position: relative;
-  }
-  
-  .noResults {
-    margin-top: 90px;
-    font-size: 60px;
-    text-align: center;
-  }
-  
-  .noResults button {
-    font-size: 20px;
-  }
-  
-  .searching {
-    display: block;
-    text-align: center;
-    font-size: 60px;
-  }
+.main {
+  background-color: rgb(185, 185, 185);
+  padding-bottom: 100px;
+}
+
+.form {
+  padding: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.form button {
+  margin-left: 20px;
+}
+
+.form div {
+  position: relative;
+  padding-top: 30px;
+}
+
+.noResults {
+  margin-top: 90px;
+  font-size: 60px;
+  text-align: center;
+}
+
+.noResults button {
+  font-size: 20px;
+}
+
+.searching {
+  display: block;
+  text-align: center;
+  font-size: 60px;
+}
 
 .instruct {
   font-family: Arial, Helvetica, sans-serif;
