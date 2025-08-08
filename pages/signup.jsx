@@ -1,135 +1,105 @@
-import Head from "next/head";
-import Image from "next/image";
-import Link from "next/link";
-import { withIronSessionSsr } from "iron-session/next";
-import sessionOptions from "../config/session";
-import { useState } from "react";
-import styles from "../styles/Home.module.css";
-import { useRouter } from "next/router";
-import Header from '../components/header';
-
+// pages/signup.jsx
+import Head from 'next/head'
+import Link from 'next/link'
+import { useState } from 'react'
+import { useRouter } from 'next/router'
+import { withIronSessionSsr } from 'iron-session/next'
+import sessionOptions from '../config/session'
+import Header from '../components/header'
+import styles from '../styles/Home.module.css'
 
 export const getServerSideProps = withIronSessionSsr(
-  async function getServerSideProps({ req }) {
-    const { user } = req.session;
-    const props = {};
-    if (user) {
-      props.user = req.session.user;
-    }
-    props.isLoggedIn = !!user;
-    return { props };
-  },
+  async ({ req }) => ({
+    props: {
+      user: req.session.user || null,
+      isLoggedIn: Boolean(req.session.user),
+    },
+  }),
   sessionOptions
-);
+)
 
-export default function Signup(props) {
-  const router = useRouter();
-  const [
-    { username, password, "confirm-password": confirmPassword },
-    setForm,
-  ] = useState({
-    username: "",
-    password: "",
-    "confirm-password": "",
-  });
-  const [error, setError] = useState("");
+export default function Signup({ isLoggedIn }) {
+  const router = useRouter()
+  const [form, setForm] = useState({
+    username: '',
+    password: '',
+    confirmPassword: '',
+  })
+  const [error, setError] = useState('')
 
-  function handleChange(e) {
-    setForm({
-      username,
-      password,
-      "confirm-password": confirmPassword,
-      ...{ [e.target.name]: e.target.value.trim() },
-    });
-  }
+  const handleChange = ({ target: { name, value } }) =>
+    setForm((f) => ({ ...f, [name]: value.trim() }))
 
-  async function handleCreateAccount(e) {
-    e.preventDefault();
-    if (!username) 
-      return setError("You must include a username!");
-    if (!password.trim())
-      return setError("You must include a password!");
-    if (!confirmPassword.trim())
-      return setError("Please confirm your password!");
-    if (password !== confirmPassword) 
-      return setError("Your passwords must match!");
+  const handleCreateAccount = async (e) => {
+    e.preventDefault()
+    const { username, password, confirmPassword } = form
+
+    if (!username) return setError('You must include a username!')
+    if (!password) return setError('You must include a password!')
+    if (password !== confirmPassword)
+      return setError('Your passwords must match!')
 
     try {
-      const res = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-        },
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),
-      });
-      if (res.status === 200) 
-        return router.push("/search");
-      const { error: message } = await res.json();
-      const errorFirstPart = message.slice(0,6)
-      if (errorFirstPart === "E11000") {
-        return setError("Username already exists")
+      })
+
+      if (res.ok) {
+        return router.push('/search')
       } else {
-        return setError(message);
+        const { error: msg } = await res.json()
+        setError(msg.startsWith('E11000') ? 'Username already exists' : msg)
       }
     } catch (err) {
-      console.log(err);
+      console.error(err)
+      setError('Unexpected error—please try again')
     }
   }
-  
+
   return (
     <div className={styles.container}>
       <Head>
         <title>Barkeep</title>
-        <meta name="description" content="Barkeep" />
+        <meta name="description" content="Barkeep Signup Page" />
         <link rel="icon" href="/logo.png" />
       </Head>
 
-      <Header isLoggedIn={props.isLoggedIn} />
+      <Header isLoggedIn={isLoggedIn} />
 
-      <main className={styles.main}>
-        <h1>
-          Create your account here:
-        </h1>
+      <main className={styles.authenticate}>
+        <h1>Create your account here:</h1>
 
         <form
-          className={[styles.card, styles.form].join(" ")}
           onSubmit={handleCreateAccount}
+          className={`${styles.card} ${styles.form}`}
         >
-          <label htmlFor="username">Username: </label>
-          <input
-            type="text"
-            name="username"
-            id="username"
-            onChange={handleChange}
-            value={username}
-          />
-          <label htmlFor="password">Password: </label>
-          <input
-            type="password"
-            name="password"
-            id="password"
-            onChange={handleChange}
-            value={password}
-          />
-          <label htmlFor="confirm-password">Confirm Password: </label>
-          <input
-            type="password"
-            name="confirm-password"
-            id="confirm-password"
-            onChange={handleChange}
-            value={confirmPassword}
-          />
-          <button>Submit</button>
-          {error && <p>{error}</p>}
+          {['username', 'password', 'confirmPassword'].map((field) => (
+            <label key={field} htmlFor={field}>
+              {field === 'confirmPassword' ? 'Confirm Password' : field.charAt(0).toUpperCase() + field.slice(1)}:
+              <input
+                id={field}
+                name={field}
+                type={field.includes('password') ? 'password' : 'text'}
+                value={form[field]}
+                onChange={handleChange}
+              />
+            </label>
+          ))}
+
+          <button type="submit">Submit</button>
+          {error && <p className={styles.error}>{error}</p>}
         </form>
+
         <Link href="/login">
           <p>Already signed up?</p>
         </Link>
       </main>
-      
+
       <footer className={styles.footer}>
-        <p>Barkeep</p>
+        <p>© Barkeep 2025</p>
       </footer>
     </div>
-  );
+  )
 }

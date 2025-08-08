@@ -1,57 +1,52 @@
-import Head from "next/head";
-import Image from "next/image";
-import Link from "next/link";
-import { useState } from "react";
-import styles from "../styles/Home.module.css";
-import { useRouter } from "next/router";
-import { withIronSessionSsr } from "iron-session/next";
-import sessionOptions from "../config/session";
-import Header from "../components/header";
+import Head from 'next/head'
+import Link from 'next/link'
+import { useState } from 'react'
+import { useRouter } from 'next/router'
+import { withIronSessionSsr } from 'iron-session/next'
+import sessionOptions from '../config/session'
+import Header from '../components/header'
+import styles from '../styles/Home.module.css'
 
 export const getServerSideProps = withIronSessionSsr(
-  async function getServerSideProps({ req }) {
-    const user = req.session.user;
-    const props = {};
-    if (user) {
-      props.user = req.session.user;
-      props.isLoggedIn = true;
-    } else {
-      props.isLoggedIn = false;
-    }
-    return { props };
-  },
+  async ({ req }) => ({
+    props: {
+      user: req.session.user || null,
+      isLoggedIn: Boolean(req.session.user),
+    },
+  }),
   sessionOptions
-);
+)
 
-export default function Login(props) {
-  const router = useRouter();
-  const [{ username, password }, setForm] = useState({
-    username: "",
-    password: "",
-  });
-  const [error, setError] = useState("");
-  function handleChange(e) {
-    setForm({ username, password, ...{ [e.target.name]: e.target.value } });
-  }
-  async function handleLogin(e) {
-    e.preventDefault();
-    if (!username.trim() || !password.trim())
+export default function Login({ isLoggedIn, user }) {
+  const router = useRouter()
+  const [form, setForm] = useState({ username: '', password: '' })
+  const [error, setError] = useState('')
+
+  const handleChange = ({ target: { name, value } }) =>
+    setForm((prev) => ({ ...prev, [name]: value }))
+
+  const handleLogin = async (e) => {
+    e.preventDefault()
+    const { username, password } = form
+
+    if (!username.trim() || !password.trim()) {
       return setError('Must include username and password')
-    try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({ username, password }),
-      });
-      if (res.status === 200) return router.back();
-      const { error: message } = await res.json();
-      setError(message);
-    } catch (err) {
-      console.log(err);
+    }
+
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password }),
+    })
+
+    if (res.ok) {
+      router.back()
+    } else {
+      const { error: message } = await res.json()
+      setError(message)
     }
   }
+
   return (
     <div className={styles.container}>
       <Head>
@@ -60,44 +55,44 @@ export default function Login(props) {
         <link rel="icon" href="/logo.png" />
       </Head>
 
-      <Header isLoggedIn={props.isLoggedIn} username={props?.user?.username} />
+      <Header isLoggedIn={isLoggedIn} username={user?.username} />
 
-      <main className={styles.main}>
-        <h1>
-          Login Here:
-        </h1>
+      <main className={styles.authenticate}>
+        <h1>Login Here:</h1>
 
         <form
-          className={[styles.card, styles.form].join(" ")}
           onSubmit={handleLogin}
+          className={`${styles.card} ${styles.form}`}
         >
-          <label htmlFor="username">Username: </label>
+          <label htmlFor="username">Username:</label>
           <input
-            type="text"
-            name="username"
             id="username"
+            name="username"
+            value={form.username}
             onChange={handleChange}
-            value={username}
           />
-          <label htmlFor="password">Password: </label>
+
+          <label htmlFor="password">Password:</label>
           <input
-            type="password"
-            name="password"
             id="password"
+            name="password"
+            type="password"
+            value={form.password}
             onChange={handleChange}
-            value={password}
           />
-          <button>Login</button>
-          {error && <p>{error}</p>}
+
+          <button type="submit">Login</button>
+          {error && <p className={styles.error}>{error}</p>}
         </form>
+
         <Link href="/signup">
           <p className={styles.signup}>Need to sign up?</p>
         </Link>
       </main>
-     
+
       <footer className={styles.footer}>
-        <p>Barkeep</p>
+        <p>© Barkeep 2025</p>
       </footer>
     </div>
-  );
+  )
 }

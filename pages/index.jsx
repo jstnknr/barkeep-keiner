@@ -1,65 +1,62 @@
-import Head from "next/head";
-import Image from "next/image";
-import Link from "next/link";
-import { useRouter } from "next/router";
-import { withIronSessionSsr } from "iron-session/next";
-import sessionOptions from "../config/session";
-import styles from "../styles/Home.module.css";
-import Header from "../components/header";
-import useLogout from "../hooks/useLogout";
+import Head from 'next/head';
+import { withIronSessionSsr } from 'iron-session/next';
+import sessionOptions from '../config/session';
+import styles from '../styles/Home.module.css';
+import Header from '../components/header';
 
 export const getServerSideProps = withIronSessionSsr(
-  async function getServerSideProps({ req }) {
-    const user = req.session.user;
-    const props = {};
-    if (user) {
-      props.user = req.session.user;
-      props.isLoggedIn = true;
-    } else {
-      props.isLoggedIn = false;
-    }
-    return { props };
+  async ({ req }) => {
+    const user = req.session.user || null;
+    return {
+      props: {
+        isLoggedIn: !!user,
+        user,
+      },
+    };
   },
   sessionOptions
 );
 
-export default function Home(props) {
-  const router = useRouter();
-  const logout = useLogout();
+export default function Home({ isLoggedIn, user }) {
   return (
     <div className={styles.container}>
       <Head>
-        <title>Barkeep</title>
+        <title>BarKeep</title>
         <meta name="description" content="Barkeep" />
         <link rel="icon" href="/barkeepLogo.png" />
       </Head>
 
-      <Header isLoggedIn={props.isLoggedIn} username={props?.user?.username} />
+      <Header isLoggedIn={isLoggedIn} username={user?.username} />
 
       <div className={styles.index}>
-      <main className={styles.main}>
-      <img src="/barkeepLogo.png" alt="Logo"/>
-        <h1 className={styles.title}>
-          Welcome to BARKEEP
-        </h1>
-        <p>Login or Sign Up to discover beverages new and old and craft a collection of bebidas.</p>
-      </main>
-
-      <div className={styles.description}>
-        <h2 className={styles.subtitle}>What is BARKEEP?</h2>
-        <p>
-         Quickly find and reference cocktail recipes with Barkeep. This is a tool built for bartenders and cocktail enthusiasts alike. Whether you're unsure of a drink name or helping a guest decide, simply search by base liquor to explore a curated list of cocktails using that spirit.
-        </p>
-        <p>
-          No need to jump between websites or dig through wordy articles. With Barkeep, you can easily save go-to drinks and access them instantly from your personal collection behind the bar.
-        </p>
-        <p>
-          Barkeep delivers each recipe with vibrant images, precise ingredient breakdowns, clear mixing steps, and suggested glassware, all within a clean, bartender-friendly interface.
+        <main className={styles.main}>
+          <img src="/barkeepLogo.png" alt="Barkeep Logo" />
+          <h1 className={styles.title}>Welcome to Barkeep</h1>
+          <p>
+            Login or sign up to discover new and classic beverages, and build
+            your personal collection.
           </p>
+        </main>
+
+        <section className={styles.description}>
+          <h2 className={styles.subtitle}>What is BarKeep?</h2>
+          <p>
+            Quickly find and reference drink recipes with BarKeep. A tool for bartenders, whether
+            you're unsure of a drink recipe or want helping a guest decide, simply
+            search by base liquor or drinkto explore a curated list of cocktails.
+          </p>
+          <p>
+            With this app there is no need to scroll through unnecessary drink info. Save
+            favorites and access them when you have time behind the bar.
+          </p>
+          <p>
+            Each recipe includes an image of the drink, ingredients, recipe, and suggested glassware in a clean, easy to read card.
+          </p>
+        </section>
       </div>
-      </div>
+
       <footer className={styles.footer}>
-        <p>Barkeep</p>
+        <p>© Barkeep 2025</p>
       </footer>
     </div>
   );

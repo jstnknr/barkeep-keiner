@@ -1,59 +1,60 @@
-import Head from "next/head";
-import Link from 'next/link';
-import styles from "../styles/Favorites.module.css";
-import { withIronSessionSsr } from "iron-session/next";
-import sessionOptions from "../config/session";
-import Header from "../components/header";
-import DrinkList from "../components/drinkList";
-import db from "../db";
+import Head from 'next/head'
+import Link from 'next/link'
+import { withIronSessionSsr } from 'iron-session/next'
+import sessionOptions from '../config/session'
+import Header from '../components/header'
+import DrinkList from '../components/drinkList'
+import db from '../db'
+import styles from '../styles/Favorites.module.css'
 
 export const getServerSideProps = withIronSessionSsr(
-  async function getServerSideProps({ req }) {
-    const user = req.session.user;
-    const drinks = await db.drink.getAll(user.id)
-    if (drinks === null) {
-      req.session.destroy()
+  async ({ req }) => {
+    const user = req.session.user
+    if (!user) {
       return {
-        redirect: {
-          destination: '/login',
-          permanent: false
-        }
+        redirect: { destination: '/login', permanent: false }
       }
     }
-    return {
-      props: {
-        user: req.session.user,
-        isLoggedIn: true,
-        favoriteDrinks: drinks,
+
+    const favoriteDrinks = await db.drink.getAll(user.id)
+    if (favoriteDrinks == null) {
+      req.session.destroy()
+      return {
+        redirect: { destination: '/login', permanent: false }
       }
-    };
+    }
+
+    return {
+      props: { user, favoriteDrinks }
+    }
   },
   sessionOptions
-);
+)
 
-export default function Favorites(props) {
+export default function Favorites({ user, favoriteDrinks }) {
   return (
     <>
       <Head>
         <title>Barkeep</title>
-        <meta name="description" content="Your favorite drinks" />
-        <link rel="icon" href="/logo.png" />
+        <meta name="description" content="Saved drinks" />
+        <link rel="icon" href="/barkeepLogo.png" />
       </Head>
 
-      <Header isLoggedIn={props.isLoggedIn} username={props?.user?.username} />
-      <main>
+      <Header isLoggedIn={!!user} username={user?.username} />
+
+      <main className={styles.main}>
         <h1 className={styles.title}>Favorite Drinks</h1>
-        {props.favoriteDrinks.length > 0 ? <DrinkList drinks={props.favoriteDrinks} /> : <NoDrinkText />}
+        {favoriteDrinks.length > 0 ? (
+          <DrinkList drinks={favoriteDrinks} />
+        ) : (
+          <div className={styles.noDrinks}>
+            <p><strong>No favorite drinks saved.</strong></p>
+            <p>
+              Want to <Link href="/search">go to search</Link> and add some?
+            </p>
+          </div>
+        )}
       </main>
     </>
-  );
-}
-
-function NoDrinkText() {
-  return (
-    <div className={styles.noDrinks}>
-      <p><strong>No favorite drinks saved.</strong></p>
-      <p>Want to <Link href="/search">go to search</Link> and add some?</p>
-    </div>
   )
 }
