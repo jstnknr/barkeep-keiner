@@ -31,7 +31,8 @@ export default function Home({ isLoggedIn, user }) {
       <div className={styles.index}>
         <main className={styles.main}>
           <img src="/barkeepLogo.png" alt="Barkeep Logo" />
-          <h1 className={styles.title}>Welcome to Barkeep</h1>
+          <h1 className={styles.title}>Barkeep</h1>
+          <h2 className={styles.subtitle}>A Bartender's Best Friend</h2>
           <p>
             Login or sign up to discover new and classic beverages, and build
             your personal collection.

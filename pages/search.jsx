@@ -87,7 +87,7 @@ export default function Search({ isLoggedIn, user }) {
         <h1 className={styles.title}>Make your search below.</h1>
         <form onSubmit={handleSubmit} className={styles.form}>
           <label className={styles.instruct} htmlFor="drink-search">
-            Search by a drink's name and/or liquor:
+            Type the drink's name and/or liquor and hit search to see results:
           </label>
           <div ref={inputDivRef}>
             <input
@@ -98,7 +98,7 @@ export default function Search({ isLoggedIn, user }) {
               autoFocus
               onChange={(e) => setQuery(e.target.value)}
             />
-            <button type="submit">Search</button>
+            <button type="submit">CLICK ME TO SEARCH</button>
           </div>
         </form>
 
@@ -133,12 +133,10 @@ function NoResults({ inputRef, previousQuery, clearSearch }) {
     <div className={styles.noResults}>
       <p>
         <strong>
-          {previousQuery ? `No Drinks Found for "${previousQuery}"` : 'No results yet.'}
+          {previousQuery ? `Sorry, we can't think of anything for "${previousQuery}"` : 'We have got nothing until you search.'}
         </strong>
       </p>
-      <button onClick={handleClick}>
-        {previousQuery ? 'Search again?' : 'Search for a drink!'}
-      </button>
+      
     </div>
   );
 }

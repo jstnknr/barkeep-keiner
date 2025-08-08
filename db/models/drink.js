@@ -1,42 +1,19 @@
-import { Schema } from 'mongoose'
+import { Schema } from 'mongoose';
 
-const drinkSchema = new Schema({
-  cocktailId: String,
+const schemaDefinition = {
+  cocktailId:   String,
   cocktailName: String,
-  thumbnail: String,
+  thumbnail:    String,
   instructions: String,
-  glassType: String,
-  ingredient1: String,
-  ingredient2: String,
-  ingredient3: String,
-  ingredient4: String,
-  ingredient5: String,
-  ingredient6: String,
-  ingredient7: String,
-  ingredient8: String,
-  ingredient9: String,
-  ingredient10: String,
-  ingredient11: String,
-  ingredient12: String,
-  ingredient13: String,
-  ingredient14: String,
-  ingredient15: String,
-  measure1: String,
-  measure2: String,
-  measure3: String,
-  measure4: String,
-  measure5: String,
-  measure6: String,
-  measure7: String,
-  measure8: String,
-  measure9: String,
-  measure10: String,
-  measure11: String,
-  measure12: String,
-  measure13: String,
-  measure14: String,
-  measure15: String,
-  ingredients: String
-})
+  glassType:    String,
+  ingredients:  String,
+};
 
-export default drinkSchema
+for (let i = 1; i <= 20; i++) {
+  schemaDefinition[`ingredient${i}`] = String;
+  schemaDefinition[`measure${i}`]    = String;
+}
+
+const drinkSchema = new Schema(schemaDefinition);
+
+export default drinkSchema;

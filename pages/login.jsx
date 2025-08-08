@@ -17,34 +17,33 @@ export const getServerSideProps = withIronSessionSsr(
   sessionOptions
 )
 
-export default function Login({ isLoggedIn, user }) {
+const fieldDefs = [
+  { name: 'username', label: 'Username', type: 'text' },
+  { name: 'password', label: 'Password', type: 'password' },
+]
+
+const Login = ({ isLoggedIn, user }) => {
   const router = useRouter()
   const [form, setForm] = useState({ username: '', password: '' })
   const [error, setError] = useState('')
 
   const handleChange = ({ target: { name, value } }) =>
-    setForm((prev) => ({ ...prev, [name]: value }))
+    setForm((f) => ({ ...f, [name]: value }))
 
   const handleLogin = async (e) => {
     e.preventDefault()
     const { username, password } = form
-
     if (!username.trim() || !password.trim()) {
       return setError('Must include username and password')
     }
-
     const res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password }),
     })
-
-    if (res.ok) {
-      router.back()
-    } else {
-      const { error: message } = await res.json()
-      setError(message)
-    }
+    if (res.ok) return router.back()
+    const { error: msg } = await res.json()
+    setError(msg)
   }
 
   return (
@@ -64,22 +63,18 @@ export default function Login({ isLoggedIn, user }) {
           onSubmit={handleLogin}
           className={`${styles.card} ${styles.form}`}
         >
-          <label htmlFor="username">Username:</label>
-          <input
-            id="username"
-            name="username"
-            value={form.username}
-            onChange={handleChange}
-          />
-
-          <label htmlFor="password">Password:</label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            value={form.password}
-            onChange={handleChange}
-          />
+          {fieldDefs.map(({ name, label, type }) => (
+            <label key={name} htmlFor={name}>
+              {label}:
+              <input
+                id={name}
+                name={name}
+                type={type}
+                value={form[name]}
+                onChange={handleChange}
+              />
+            </label>
+          ))}
 
           <button type="submit">Login</button>
           {error && <p className={styles.error}>{error}</p>}
@@ -96,3 +91,5 @@ export default function Login({ isLoggedIn, user }) {
     </div>
   )
 }
+
+export default Login

@@ -1,10 +1,6 @@
 import * as actions from './actions'
 
-export default function reducer(state, {action, payload}) {
-  switch(action) {
-    case actions.SEARCH_DRINKS:
-      return {...state, drinkSearchResults: payload}
-    default:
-      return state
-  }
-}
+export default (state, { action, payload }) =>
+  action === actions.SEARCH_DRINKS
+    ? { ...state, drinkSearchResults: payload }
+    : state

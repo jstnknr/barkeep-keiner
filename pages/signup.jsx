@@ -11,14 +11,19 @@ import styles from '../styles/Home.module.css'
 export const getServerSideProps = withIronSessionSsr(
   async ({ req }) => ({
     props: {
-      user: req.session.user || null,
       isLoggedIn: Boolean(req.session.user),
     },
   }),
   sessionOptions
 )
 
-export default function Signup({ isLoggedIn }) {
+const fieldDefs = [
+  { name: 'username', label: 'Username', type: 'text' },
+  { name: 'password', label: 'Password', type: 'password' },
+  { name: 'confirmPassword', label: 'Confirm Password', type: 'password' },
+]
+
+const Signup = ({ isLoggedIn }) => {
   const router = useRouter()
   const [form, setForm] = useState({
     username: '',
@@ -34,10 +39,13 @@ export default function Signup({ isLoggedIn }) {
     e.preventDefault()
     const { username, password, confirmPassword } = form
 
-    if (!username) return setError('You must include a username!')
-    if (!password) return setError('You must include a password!')
-    if (password !== confirmPassword)
-      return setError('Your passwords must match!')
+    for (const [cond, msg] of [
+      [username, 'You must include a username!'],
+      [password, 'You must include a password!'],
+      [password === confirmPassword, 'Your passwords must match!'],
+    ]) {
+      if (!cond) return setError(msg)
+    }
 
     try {
       const res = await fetch('/api/auth/signup', {
@@ -46,14 +54,11 @@ export default function Signup({ isLoggedIn }) {
         body: JSON.stringify({ username, password }),
       })
 
-      if (res.ok) {
-        return router.push('/search')
-      } else {
-        const { error: msg } = await res.json()
-        setError(msg.startsWith('E11000') ? 'Username already exists' : msg)
-      }
-    } catch (err) {
-      console.error(err)
+      if (res.ok) return router.push('/search')
+
+      const { error: msg } = await res.json()
+      setError(msg.startsWith('E11000') ? 'Username already exists' : msg)
+    } catch {
       setError('Unexpected error—please try again')
     }
   }
@@ -75,14 +80,14 @@ export default function Signup({ isLoggedIn }) {
           onSubmit={handleCreateAccount}
           className={`${styles.card} ${styles.form}`}
         >
-          {['username', 'password', 'confirmPassword'].map((field) => (
-            <label key={field} htmlFor={field}>
-              {field === 'confirmPassword' ? 'Confirm Password' : field.charAt(0).toUpperCase() + field.slice(1)}:
+          {fieldDefs.map(({ name, label, type }) => (
+            <label key={name} htmlFor={name}>
+              {label}:
               <input
-                id={field}
-                name={field}
-                type={field.includes('password') ? 'password' : 'text'}
-                value={form[field]}
+                id={name}
+                name={name}
+                type={type}
+                value={form[name]}
                 onChange={handleChange}
               />
             </label>
@@ -103,3 +108,5 @@ export default function Signup({ isLoggedIn }) {
     </div>
   )
 }
+
+export default Signup

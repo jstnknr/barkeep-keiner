@@ -1,34 +1,35 @@
-import { withIronSessionApiRoute } from "iron-session/next";
-import sessionOptions from "../../config/session";
-import db from "../../db";
+import { withIronSessionApiRoute } from 'iron-session/next'
+import sessionOptions from '../../config/session'
+import db from '../../db'
+
+const handlers = {
+  POST: {
+    exec: (user, body) => db.drink.add(user.id, body),
+    successMsg: 'cocktail collected',
+  },
+  DELETE: {
+    exec: (user, body) => db.drink.remove(user.id, body.id),
+    successMsg: 'cocktail removed',
+  },
+}
 
 async function handler(req, res) {
-  const { user } = req.session;
-  if (!user) return res.status(401).end();
+  const { user } = req.session
+  if (!user) return res.status(401).end()
 
-  const { method, body } = req;
-  let actionResult, successMessage;
+  const cfg = handlers[req.method]
+  if (!cfg) return res.status(404).end()
 
   try {
-    if (method === "POST") {
-      actionResult = await db.drink.add(user.id, body);
-      successMessage = "drink added";
-    } else if (method === "DELETE") {
-      actionResult = await db.drink.remove(user.id, body.id);
-      successMessage = "drink removed";
-    } else {
-      return res.status(404).end();
+    const result = await cfg.exec(user, req.body)
+    if (result) {
+      return res.status(200).json(cfg.successMsg)
     }
-
-    if (actionResult) {
-      return res.status(200).json(successMessage);
-    } else {
-      await req.session.destroy();
-      return res.status(401).json({ error: `${successMessage} failed` });
-    }
+    await req.session.destroy()
+    return res.status(401).json({ error: `${cfg.successMsg} failed` })
   } catch (error) {
-    return res.status(400).json({ error: error.message });
+    return res.status(400).json({ error: error.message })
   }
 }
 
-export default withIronSessionApiRoute(handler, sessionOptions);
+export default withIronSessionApiRoute(handler, sessionOptions)
