@@ -9,7 +9,7 @@ const handlers = {
   },
   DELETE: {
     exec: (user, body) => db.drink.remove(user.id, body.id),
-    successMsg: 'cocktail removed',
+    successMsg: 'cocktail destroyed',
   },
 }
 

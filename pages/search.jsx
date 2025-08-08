@@ -1,38 +1,31 @@
-import { useState, useRef } from 'react';
-import Head from 'next/head';
-import { withIronSessionSsr } from 'iron-session/next';
-import sessionOptions from '../config/session';
-import { useDrinkContext } from '../context/drink';
-import * as actions from '../context/drink/actions';
-import DrinkList from '../components/drinkList';
-import Header from '../components/header';
-import styles from '../styles/Search.module.css';
+import { useState, useRef } from 'react'
+import Head from 'next/head'
+import { withIronSessionSsr } from 'iron-session/next'
+import sessionOptions from '../config/session'
+import { useDrinkContext } from '../context/drink'
+import * as actions from '../context/drink/actions'
+import DrinkResults from '../components/drinkResults'
+import Header from '../components/header'
+import styles from '../styles/Search.module.css'
 
 export const getServerSideProps = withIronSessionSsr(
   async ({ req }) => {
-    const { user } = req.session;
-    return {
-      props: {
-        isLoggedIn: !!user,
-        user: user || null,
-      },
-    };
+    const { user } = req.session
+    return { props: { isLoggedIn: !!user, user: user || null } }
   },
   sessionOptions
-);
+)
 
 function prepRawData(rawData) {
   return rawData?.drinks?.map((drink) => {
-    const ingredients = [];
-    const measures = [];
-
+    const ingredients = []
+    const measures = []
     for (let i = 1; i <= 15; i++) {
       if (drink[`strIngredient${i}`]) {
-        ingredients.push(drink[`strIngredient${i}`]);
-        measures.push(drink[`strMeasure${i}`] || '');
+        ingredients.push(drink[`strIngredient${i}`])
+        measures.push(drink[`strMeasure${i}`] || '')
       }
     }
-
     return {
       cocktailId: drink.idDrink,
       cocktailName: drink.strDrink,
@@ -41,37 +34,36 @@ function prepRawData(rawData) {
       glassType: drink.strGlass,
       ingredients,
       measures,
-    };
-  });
+    }
+  })
 }
 
 export default function Search({ isLoggedIn, user }) {
-  const [{ drinkSearchResults }, dispatch] = useDrinkContext();
-  const [query, setQuery] = useState('');
-  const [fetching, setFetching] = useState(false);
-  const [previousQuery, setPreviousQuery] = useState('');
-  const inputRef = useRef();
-  const inputDivRef = useRef();
+  const [{ drinkSearchResults }, dispatch] = useDrinkContext()
+  const [query, setQuery] = useState('')
+  const [fetching, setFetching] = useState(false)
+  const [previousQuery, setPreviousQuery] = useState('')
+  const inputRef = useRef()
+  const inputDivRef = useRef()
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (fetching || !query.trim() || query === previousQuery) return;
+    e.preventDefault()
+    if (fetching || !query.trim() || query === previousQuery) return
 
-    setPreviousQuery(query);
-    setFetching(true);
-
+    setPreviousQuery(query)
+    setFetching(true)
     try {
-      const res = await fetch(`https://www.thecocktaildb.com/api/json/v1/1/search.php?s=${query}`);
-      if (!res.ok) return;
-
-      const rawData = await res.json();
-      const data = prepRawData(rawData);
-
-      dispatch({ action: actions.SEARCH_DRINKS, payload: data });
+      const res = await fetch(
+        `https://www.thecocktaildb.com/api/json/v1/1/search.php?s=${query}`
+      )
+      if (!res.ok) return
+      const rawData = await res.json()
+      const data = prepRawData(rawData)
+      dispatch({ action: actions.SEARCH_DRINKS, payload: data })
     } finally {
-      setFetching(false);
+      setFetching(false)
     }
-  };
+  }
 
   return (
     <>
@@ -87,7 +79,7 @@ export default function Search({ isLoggedIn, user }) {
         <h1 className={styles.title}>Make your search below.</h1>
         <form onSubmit={handleSubmit} className={styles.form}>
           <label className={styles.instruct} htmlFor="drink-search">
-            Type the drink's name and/or liquor and hit search to see results:
+            Type the drink's name and hit search to see if we know it:
           </label>
           <div ref={inputDivRef}>
             <input
@@ -103,40 +95,23 @@ export default function Search({ isLoggedIn, user }) {
         </form>
 
         {fetching ? (
-          <Searching />
+          <span className={styles.searching}>
+            Gimme a second, I'm searching here!
+          </span>
         ) : drinkSearchResults?.length ? (
-          <DrinkList drinks={drinkSearchResults} />
+          <DrinkResults drinks={drinkSearchResults} />
         ) : (
-          <NoResults
-            inputRef={inputRef}
-            inputDivRef={inputDivRef}
-            previousQuery={previousQuery}
-            clearSearch={() => setQuery('')}
-          />
+          <div className={styles.noResults}>
+            <p>
+              <strong>
+                {previousQuery
+                  ? `Sorry, we can't think of anything for "${previousQuery}"`
+                  : 'We have got nothing until you search.'}
+              </strong>
+            </p>
+          </div>
         )}
       </main>
     </>
-  );
-}
-
-function Searching() {
-  return <span className={styles.searching}>Gimme a second, I'm searching here!</span>;
-}
-
-function NoResults({ inputRef, previousQuery, clearSearch }) {
-  const handleClick = () => {
-    inputRef.current.focus();
-    if (previousQuery) clearSearch();
-  };
-
-  return (
-    <div className={styles.noResults}>
-      <p>
-        <strong>
-          {previousQuery ? `Sorry, we can't think of anything for "${previousQuery}"` : 'We have got nothing until you search.'}
-        </strong>
-      </p>
-      
-    </div>
-  );
+  )
 }

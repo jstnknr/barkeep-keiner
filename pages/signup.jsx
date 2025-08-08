@@ -66,7 +66,7 @@ const Signup = ({ isLoggedIn }) => {
   return (
     <div className={styles.container}>
       <Head>
-        <title>Barkeep</title>
+        <title>BarKeep</title>
         <meta name="description" content="Barkeep Signup Page" />
         <link rel="icon" href="/logo.png" />
       </Head>
@@ -103,7 +103,7 @@ const Signup = ({ isLoggedIn }) => {
       </main>
 
       <footer className={styles.footer}>
-        <p>© Barkeep 2025</p>
+        <p>BarKeep 2025</p>
       </footer>
     </div>
   )

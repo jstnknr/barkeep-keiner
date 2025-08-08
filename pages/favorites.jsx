@@ -1,10 +1,9 @@
-// pages/favorites.jsx
 import Head from 'next/head'
 import Link from 'next/link'
 import { withIronSessionSsr } from 'iron-session/next'
 import sessionOptions from '../config/session'
 import Header from '../components/header'
-import DrinkList from '../components/drinkList'
+import DrinkResults from '../components/drinkResults'
 import db from '../db'
 import styles from '../styles/Favorites.module.css'
 
@@ -26,30 +25,30 @@ export const getServerSideProps = withIronSessionSsr(
   sessionOptions
 )
 
-const Favorites = ({ user, favoriteDrinks }) => (
-  <>
-    <Head>
-      <title>Barkeep</title>
-      <meta name="description" content="Saved drinks" />
-      <link rel="icon" href="/barkeepLogo.png" />
-    </Head>
+export default function Favorites({ user, favoriteDrinks }) {
+  return (
+    <>
+      <Head>
+        <title>BarKeep</title>
+        <meta name="description" content="Saved drinks" />
+        <link rel="icon" href="/barkeepLogo.png" />
+      </Head>
 
-    <Header isLoggedIn={Boolean(user)} username={user?.username} />
+      <Header isLoggedIn={!!user} username={user?.username} />
 
-    <main className={styles.main}>
-      <h1 className={styles.title}>Favorite Drinks</h1>
-      {favoriteDrinks.length ? (
-        <DrinkList drinks={favoriteDrinks} />
-      ) : (
-        <div className={styles.noDrinks}>
-          <p><strong>No favorite drinks saved.</strong></p>
-          <p>
-            Want to <Link href="/search">go to search</Link> and add some?
-          </p>
-        </div>
-      )}
-    </main>
-  </>
-)
-
-export default Favorites
+      <main className={styles.main}>
+        <h1 className={styles.title}>Favorite Cocktails</h1>
+        {favoriteDrinks.length ? (
+          <DrinkResults drinks={favoriteDrinks} />
+        ) : (
+          <div className={styles.noDrinks}>
+            <p><strong>You haven't collected any drinks yet.</strong></p>
+            <p>
+              Click here to <Link href="/search">go back</Link> and add some?
+            </p>
+          </div>
+        )}
+      </main>
+    </>
+  )
+}

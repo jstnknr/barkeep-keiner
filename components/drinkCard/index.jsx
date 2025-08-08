@@ -1,6 +1,6 @@
 import styles from './style.module.css'
 
-const DrinkPreview = ({ cocktailName, thumbnail }) => (
+const DrinkCard = ({ cocktailName, thumbnail }) => (
   <div className={styles.preview}>
     <img src={`${thumbnail}/preview`} alt={cocktailName} />
     <div>
@@ -9,4 +9,4 @@ const DrinkPreview = ({ cocktailName, thumbnail }) => (
   </div>
 )
 
-export default DrinkPreview
+export default DrinkCard

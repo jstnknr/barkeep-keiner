@@ -49,7 +49,7 @@ const Login = ({ isLoggedIn, user }) => {
   return (
     <div className={styles.container}>
       <Head>
-        <title>Barkeep</title>
+        <title>BarKeep</title>
         <meta name="description" content="Barkeep Login Page" />
         <link rel="icon" href="/logo.png" />
       </Head>
@@ -81,12 +81,12 @@ const Login = ({ isLoggedIn, user }) => {
         </form>
 
         <Link href="/signup">
-          <p className={styles.signup}>Need to sign up?</p>
+          <p className={styles.signup}>Not signed up yet?</p>
         </Link>
       </main>
 
       <footer className={styles.footer}>
-        <p>© Barkeep 2025</p>
+        <p>BarKeep 2025</p>
       </footer>
     </div>
   )

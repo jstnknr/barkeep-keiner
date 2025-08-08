@@ -1,7 +1,8 @@
+// pages/drink/[id].jsx
 import Head from 'next/head'
 import { useRouter } from 'next/router'
 import Link from 'next/link'
-import { useEffect } from 'react'
+import { useEffect, useCallback } from 'react'
 import { withIronSessionSsr } from 'iron-session/next'
 import sessionOptions from '../../config/session'
 import { useDrinkContext } from '../../context/drink'
@@ -11,16 +12,16 @@ import styles from '../../styles/Drink.module.css'
 
 export const getServerSideProps = withIronSessionSsr(
   async ({ req, params }) => {
-    const user = req.session.user ?? null
+    const user = req.session.user || null
     const drink = user
       ? await db.drink.getByCocktailId(user.id, params.id)
       : null
 
     return {
       props: {
-        isLoggedIn: Boolean(user),
+        isLoggedIn: !!user,
         user,
-        drink,
+        drink, 
       },
     }
   },
@@ -29,30 +30,36 @@ export const getServerSideProps = withIronSessionSsr(
 
 export default function Drink({ isLoggedIn, user, drink: favDrink }) {
   const router = useRouter()
-  const { drinkSearchResults } = useDrinkContext()[0]
-  const drink =
-    favDrink ||
-    drinkSearchResults.find((d) => d.cocktailId === router.query.id)
+  const [{ drinkSearchResults }] = useDrinkContext()
+  const drinkId = router.query.id
 
+  
+  const drink = favDrink || drinkSearchResults.find(d => d.cocktailId === drinkId)
+
+  
   useEffect(() => {
-    if (!drink) router.replace('/')
-  }, [drink, router])
+    if (!favDrink && !drink) {
+      router.replace('/')
+    }
+  }, [favDrink, drink, router])
 
-  const toggleFavorite = async () => {
-    const method = favDrink ? 'DELETE' : 'POST'
-    const body = favDrink ? { id: favDrink.id } : drink
-    const res = await fetch('/api/drink', {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    })
-    if (res.ok) router.replace(router.asPath)
-  }
+
+  const toggleFavorite = useCallback(
+    async (method) => {
+      const res = await fetch('/api/drink', {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(method === 'POST' ? drink : { id: favDrink.id }),
+      })
+      if (res.ok) router.replace(router.asPath)
+    },
+    [drink, favDrink, router]
+  )
 
   return (
     <>
       <Head>
-        <title>Barkeep</title>
+        <title>BarKeep</title>
         <meta name="description" content="Viewing a drink with Barkeep" />
         <link rel="icon" href="/barkeepLogo.png" />
       </Head>
@@ -61,7 +68,7 @@ export default function Drink({ isLoggedIn, user, drink: favDrink }) {
 
       {drink && (
         <main>
-          <DrinkInfo {...drink} isFavorite={Boolean(favDrink)} />
+          <DrinkInfo {...drink} isFavorite={!!favDrink} />
 
           <div className={styles.controls}>
             {!isLoggedIn ? (
@@ -72,10 +79,11 @@ export default function Drink({ isLoggedIn, user, drink: favDrink }) {
                 </Link>
               </>
             ) : (
-              <button onClick={toggleFavorite}>
-                {favDrink ? 'Remove from Favorites' : 'Save to Favorites'}
+              <button onClick={() => toggleFavorite(favDrink ? 'DELETE' : 'POST')}>
+                {favDrink ? 'Get it out of here!' : 'Add this drink to my collection!'}
               </button>
             )}
+
             <button onClick={() => router.back()} className="link-button">
               ← Return
             </button>
@@ -88,20 +96,30 @@ export default function Drink({ isLoggedIn, user, drink: favDrink }) {
 
 function DrinkInfo({
   cocktailName,
+  instructions,
   thumbnail,
   glassType,
-  instructions,
   isFavorite,
+  ingredients,
+  measures,
   ...rest
 }) {
-  const ingredientList = []
-  for (let i = 1; i <= 20; i++) {
-    const ing = rest[`ingredient${i}`] || rest[`strIngredient${i}`]
-    const measure = rest[`measure${i}`] || rest[`strMeasure${i}`]
-    if (ing && measure) {
-      ingredientList.push(`${measure.trim()} ${ing.trim()}`)
-    }
-  }
+  const ingredientList = Array.isArray(ingredients) && ingredients.length
+    ? ingredients.map((ing, idx) => {
+        const measure = measures?.[idx] || ''
+        return `${measure} ${ing}`.trim()
+      })
+    : (() => {
+        const list = []
+        for (let i = 1; i <= 15; i++) {
+          const ing = rest[`strIngredient${i}`] || rest[`ingredient${i}`]
+          const measure = rest[`strMeasure${i}`] || rest[`measure${i}`]
+          if (ing && measure) {
+            list.push(`${measure} ${ing}`.trim())
+          }
+        }
+        return list
+      })()
 
   return (
     <>
@@ -114,18 +132,15 @@ function DrinkInfo({
 
       <div className={styles.drinkInformation}>
         <p>
-          <strong>Ingredients:</strong>
-          <br />
+          <strong>Ingredients:</strong><br />
           {ingredientList.join(', ')}
         </p>
         <p>
-          <strong>Instructions:</strong>
-          <br />
+          <strong>Instructions:</strong><br />
           {instructions}
         </p>
         <p>
-          <strong>Glass:</strong>
-          <br />
+          <strong>Glass:</strong><br />
           {glassType}
         </p>
       </div>
