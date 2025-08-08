@@ -73,7 +73,7 @@ export default function Drink({ isLoggedIn, user, drink: favDrink }) {
           <div className={styles.controls}>
             {!isLoggedIn ? (
               <>
-                <p>Want to add this drink to your favorites?</p>
+                <p>Save this one for later?</p>
                 <Link href="/login" className="button">
                   Login
                 </Link>
@@ -85,7 +85,7 @@ export default function Drink({ isLoggedIn, user, drink: favDrink }) {
             )}
 
             <button onClick={() => router.back()} className="link-button">
-              ← Return
+              Back to search
             </button>
           </div>
         </main>

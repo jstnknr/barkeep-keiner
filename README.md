@@ -1,5 +1,7 @@
 ## BarKeep
 
+![BarKeep Homepage](public/HomePage.png)
+
 A bartender-friendly cocktail lookup and bookmarking app built with Next.js and React. Search by drink name or base liquor, explore detailed recipes, and save your favorites for quick access behind the bar.
 
  Live Link: 
@@ -8,21 +10,23 @@ A bartender-friendly cocktail lookup and bookmarking app built with Next.js and 
 
 ## Features
 
+![Search Results](public/DrinkResults.png)
 - **Search Cocktails**  
   Find any cocktail by name or choose a liquor base (vodka, rum, tequila, etc.) to discover matching recipes.
 
+![Drink Specs](public/DrinkSpecs.png)
 - **Cocktail Details**  
   View an image of what the drink should look like, ingredient lists, measurements, crafting instructions, and recommended glassware.
 
 - **Save Your Favorites**  
-  Save and remove favorite cocktails. Favorites persist in your session (via Iron Session) so you can revisit them later.
+  Save and remove favorite cocktails by signing up (not required). Favorites persist in your session (via Iron Session) so you can revisit them later.
 
 - **Responsive Design**  
   Works seamlessly on desktop, tablet, and mobile screens.
 
 ---
 
-- **API:** [TheCocktailDB](https://www.thecocktaildb.com/)  
+- **API:** [TheCocktailDB](https://www.thecocktaildb.com/)  For educational use!
 
 ---
 
