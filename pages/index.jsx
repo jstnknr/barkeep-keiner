@@ -53,7 +53,7 @@ export default function Home({ isLoggedIn, user }) {
       </div>
 
       <footer className={styles.footer}>
-        <p>Barkeep 2025</p>
+        <p>BarKeep 2025</p>
       </footer>
     </div>
   );
